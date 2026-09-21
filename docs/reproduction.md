@@ -42,7 +42,7 @@ python scripts/check_libero_eval_env.py
 
 ## 下载分工
 
-1. DuVLA HF model repo（待创建）：`policy.pt`、`train_manifest.json`及模型说明。
+1. 本地 DuVLA V3.31 策略包：`policy.pt` 与 `train_manifest.json`。
 2. Qwen官方仓库：`Qwen/Qwen3-VL-2B-Instruct`，固定revision
    `89644892e4d85e24eaac8bacfd4f463576704203`。本地HF下载metadata记录此revision；
    发布前还应完成全部骨干文件hash清单校验，不仅依赖config.json的revision记录。
@@ -125,7 +125,7 @@ python scripts/aggregate_duvla_v2_1_eval.py \
 ```bash
 PYTHONPATH=src:scripts python -m pytest -q \
   tests/test_import.py tests/test_flow_contract.py tests/test_libero_contract.py \
-  tests/test_qwen_backbone.py tests/test_public_release.py tests/test_training_portability.py \
+  tests/test_qwen_backbone.py tests/test_training_portability.py \
   tests/test_duvla_v3_31.py tests/test_v3_29_implementation.py
 ```
 

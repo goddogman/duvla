@@ -6,11 +6,10 @@ DuVLA 是一个以冻结 [Qwen3-VL-2B-Instruct](https://huggingface.co/Qwen/Qwen
 设计目标是在单张约 8GB 显存的消费级 NVIDIA GPU 上训练策略，**不是全参数训练 Qwen**。
 
 当前对外主模型为 **V3.31**。同一 checkpoint 在 LIBERO 四套、40 个任务、2000 个官方初始状态上
-取得 **1906/2000（95.30%）** 的闭环开发测评成功率。权重地址尚未发布；在公开前请勿把下文的
-占位路径当作下载链接。
+取得 **1906/2000（95.30%）** 的闭环开发测评成功率。源码仓库不附带策略权重；
+使用已有本地权重，或按下文流程自行训练。
 
-[安装与复现](docs/reproduction.md) · [结果与协议](release/results.json) ·
-[发布资产说明](docs/release.md) · [贡献指南](CONTRIBUTING.md)
+[安装与复现](docs/reproduction.md) · [贡献指南](CONTRIBUTING.md)
 
 ## 结果
 
@@ -63,7 +62,7 @@ V3.31 **没有** Outcome Verifier、Recovery 或 Qwen LoRA；完整推理系统�
 | 测评 V3.31 | 策略 `policy.pt` 与 `train_manifest.json`、[Qwen 骨干](https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct)、[LIBERO 模拟器/资产](https://github.com/Lifelong-Robot-Learning/LIBERO) |
 | 从头训练 | 上述 Qwen 与 LIBERO 源码、[LIBERO 官方示范 HDF5](https://huggingface.co/datasets/yifengzhu-hf/LIBERO-datasets) 的 Spatial/Object/Goal/10 四套、约 210GiB 的本地特征缓存空间 |
 
-策略权重的公开仓库尚未创建；模型和数据均**不会**在 `import duvla` 或安装时自动下载。
+模型和数据均**不会**在 `import duvla` 或安装时自动下载。
 只做测评无需示范 HDF5 或训练特征缓存。
 
 ## 安装（Ubuntu）
@@ -112,8 +111,7 @@ python scripts/check_libero_eval_env.py
 
 ## 测评 V3.31
 
-从未来发布的模型包取得 `policy.pt` 和 `train_manifest.json`，并另行准备 Qwen 骨干。
-**当前模型包尚未公开，因此以下是给已有权重使用者的命令模板，不是可直接下载的一键示例。**
+准备本地 `policy.pt`、`train_manifest.json` 和 Qwen 骨干；下列路径由使用者自行指定。
 所有路径由使用者指定，不依赖作者的目录结构。
 
 ```bash
@@ -207,27 +205,27 @@ duvla/
 ├── scripts/            # 缓存、训练与LIBERO评测入口
 ├── tests/              # 数据/动作/加载契约测试
 ├── requirements/       # 已运行的直接依赖版本
-├── release/results.json
 └── docs/reproduction.md
 ```
 
-代码与策略权重分别发布：GitHub 仓库保存源码和小型结果证据；策略权重、归一化 manifest
-和模型卡计划放在 Hugging Face Model Hub。Qwen 骨干、LIBERO 数据与模拟资产须从各自来源获取，
-不包含在本仓库中。详细分工见[发布说明](docs/release.md)。
+GitHub 仓库保存源码、测试与使用说明，不包含训练数据、特征缓存、checkpoint、逐集测评记录
+或研究日志。策略权重及其归一化 manifest 由使用者单独管理；Qwen 骨干、LIBERO 数据与模拟
+资产须从各自来源获取。
 
 ## 复现边界
 
-- 本仓库目前只公开展示 V3.31；其他实验版本不作为可下载主模型。
+- README 只介绍当前主模型 V3.31；其他研究版本不作为本仓库的使用入口。
 - 训练采用 2000 条 LIBERO 官方示范的全量 refit，**没有**示范 validation；上表的
   2000 集属于开发测评，不是独立验证集。
 - 已对公开入口做安装/缓存/单更新接线检查，但尚未在原生 Ubuntu 的全新机器上完成
   全量 30E+30E 训练或 2000 集重跑。安装成功、`--help`和单更新冒烟不等于结果复现。
-- 固定版本依赖和原始结果哈希见[复现说明](docs/reproduction.md)与[结果文件](release/results.json)。
+- 固定版本依赖与复现步骤见[复现说明](docs/reproduction.md)；完整实验记录保存在本地研究目录，
+  不纳入 Git 提交。
 
 ## 致谢与许可
 
 依赖[Qwen3-VL](https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct)、
 [LIBERO](https://github.com/Lifelong-Robot-Learning/LIBERO)及PyTorch等开源项目。
-项目自有代码采用[MIT](LICENSE)；维护者账号与主模型下载地址将在实际发布时补充。
+项目自有代码采用[MIT](LICENSE)。
 第三方代码、基座权重、数据和模拟资产许可独立适用。
 来源与待核验项见[第三方说明](THIRD_PARTY_NOTICES.md)。

@@ -58,6 +58,8 @@ env/
 AGENTS.local.md
 /release-staging/
 /.local-archive/
+/release/
+/itory"
 *.hdf5
 *.h5
 *.zip
@@ -72,7 +74,6 @@ AGENTS.local.md
 /src/duvla/ds4_vla/
 /docs/*
 !/docs/reproduction.md
-!/docs/release.md
 /scripts/*
 !/scripts/aggregate_duvla_v2_1_eval.py
 !/scripts/cache_duvla_v3_29.py
@@ -81,7 +82,6 @@ AGENTS.local.md
 !/scripts/check_libero_eval_env.py
 !/scripts/compare_paired_libero_results.py
 !/scripts/evaluate_duvla_v2_1.py
-!/scripts/prepare_public_release.py
 !/scripts/train_duvla_v2_1.py
 !/scripts/train_duvla_v3_29.py
 !/scripts/train_duvla_v3_31.py
@@ -89,7 +89,6 @@ AGENTS.local.md
 !/tests/test_flow_contract.py
 !/tests/test_import.py
 !/tests/test_libero_contract.py
-!/tests/test_public_release.py
 !/tests/test_qwen_backbone.py
 !/tests/test_training_portability.py
 !/tests/test_duvla_v3_31.py
