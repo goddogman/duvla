@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "status": "local_release_candidate",
+  "primary_model": "V3.31",
+  "evaluated_as": "完整开发测评，非盲测",
+  "models": {
+    "V3.31": {
+      "complete": true,
+      "episode_count": 2000,
+      "success_count": 1906,
+      "success_rate": 0.953,
+      "original_checkpoint_sha256": "2e26653d9ded47cb949f3478bc97eb29975f526531c7a9b51487794f468254f4",
+      "role": "完整开发测评，非独立盲测",
+      "suites": {
+        "libero_10": {
+          "episode_count": 500,
+          "success_count": 457,
+          "success_rate": 0.914
+        },
+        "libero_spatial": {
+          "episode_count": 500,
+          "success_count": 479,
+          "success_rate": 0.958
+        },
+        "libero_object": {
+          "episode_count": 500,
+          "success_count": 484,
+          "success_rate": 0.968
+        },
+        "libero_goal": {
+          "episode_count": 500,
+          "success_count": 486,
+          "success_rate": 0.972
+        }
+      },
+      "original_checkpoint_bytes": 537714973,
+      "policy_parameters": 134394924,
+      "stage_trainable_parameters": 101895440
+    }
+  },
+  "protocol": {
+    "task_count": 40,
+    "states_per_task": 50,
+    "control_frequency_hz": 20,
+    "camera_size": 128,
+    "flow_seed": 23,
+    "flow_samples": 5,
+    "action_steps": 2,
+    "flow_integration_steps": 10,
+    "settle_steps": 10,
+    "max_steps": {
+      "libero_10": 520,
+      "libero_spatial": 280,
+      "libero_object": 280,
+      "libero_goal": 300
+    },
+    "benchmark_task_index": false,
+    "task_routing": "natural_language"
+  },
+  "backbone": {
+    "id": "Qwen/Qwen3-VL-2B-Instruct",
+    "revision_from_local_download_metadata": "89644892e4d85e24eaac8bacfd4f463576704203",
+    "all_files_revision_audit_pending": true
+  }
+}

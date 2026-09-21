@@ -1,0 +1,16 @@
+{
+  "include": [
+    "README.md", "AGENTS.md", "CONTRIBUTING.md", "THIRD_PARTY_NOTICES.md", "LICENSE", ".gitignore",
+    "pyproject.toml", "requirements/*.txt", "src/duvla/**/*.py",
+    "docs/reproduction.md", "docs/release.md", "release/*.json", "release/*.md",
+    "scripts/prepare_public_release.py", "scripts/check_libero_eval_env.py",
+    "scripts/evaluate_duvla_v2_1.py", "scripts/aggregate_duvla_v2_1_eval.py",
+    "scripts/compare_paired_libero_results.py", "scripts/cache_official_libero_hdf5_features.py",
+    "scripts/cache_duvla_v3_29.py", "scripts/cache_duvla_v3_31.py",
+    "scripts/train_duvla_v3_29.py", "scripts/train_duvla_v3_31.py",
+    "tests/test_public_release.py", "tests/test_qwen_backbone.py", "tests/test_import.py",
+    "tests/test_flow_contract.py", "tests/test_libero_contract.py",
+    "tests/test_training_portability.py", "tests/test_duvla_v3_31.py", "tests/test_v3_29_implementation.py"
+  ],
+  "exclude": ["src/duvla/ds4_vla/*"]
+}

@@ -1,0 +1,96 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+build/
+dist/
+
+# Virtual environments
+.venv/
+.venv-libero-plus/
+venv/
+env/
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Data, caches, models, and experiment artifacts
+/data/
+/datasets/
+/cache/
+/models/
+/weights/
+/checkpoints/
+/outputs/
+/runs/
+/wandb/
+/logs/
+
+# Model and media files
+*.pt
+*.pth
+*.ckpt
+*.bin
+*.safetensors
+*.onnx
+*.mp4
+*.avi
+*.gif
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Private workstation instructions and release staging
+AGENTS.local.md
+/release-staging/
+/.local-archive/
+*.hdf5
+*.h5
+*.zip
+*.tar
+*.tar.gz
+*.npy
+*.npz
+
+# 本地研究与公开源码共存：不移动文件，只限制默认提交范围。
+/configs/
+/notebooks/
+/src/duvla/ds4_vla/
+/docs/*
+!/docs/reproduction.md
+!/docs/release.md
+/scripts/*
+!/scripts/aggregate_duvla_v2_1_eval.py
+!/scripts/cache_duvla_v3_29.py
+!/scripts/cache_duvla_v3_31.py
+!/scripts/cache_official_libero_hdf5_features.py
+!/scripts/check_libero_eval_env.py
+!/scripts/compare_paired_libero_results.py
+!/scripts/evaluate_duvla_v2_1.py
+!/scripts/prepare_public_release.py
+!/scripts/train_duvla_v2_1.py
+!/scripts/train_duvla_v3_29.py
+!/scripts/train_duvla_v3_31.py
+/tests/*
+!/tests/test_flow_contract.py
+!/tests/test_import.py
+!/tests/test_libero_contract.py
+!/tests/test_public_release.py
+!/tests/test_qwen_backbone.py
+!/tests/test_training_portability.py
+!/tests/test_duvla_v3_31.py
+!/tests/test_v3_29_implementation.py
