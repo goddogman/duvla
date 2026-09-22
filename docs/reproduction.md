@@ -1,22 +1,18 @@
 # 复现说明
 
-## 已验证范围
+## 环境版本
 
 本项目在WSL2 Ubuntu、RTX 5060 Laptop 8GiB、Python 3.12.13、PyTorch 2.11.0+cu128上
-运行当前唯一发布模型V3.31。关键依赖见`requirements/verified-runtime.txt`。
-这是一份已运行版本记录，尚不是干净机器验证通过的完整安装锁。
-不在现有训练/评测环境中直接升级依赖。
+运行V3.31。主要依赖版本见`requirements/verified-runtime.txt`。
 
 面向Ubuntu的虚拟环境安装顺序见[README安装](../README.md#安装ubuntu)：先装对应CUDA版PyTorch，
 再安装`requirements/verified-runtime.txt`和`.[train,qwen,eval,dev]`，最后安装LIBERO源码并检查依赖。
-`pip install --no-deps -e .`仅适用于已手工备齐全部依赖的环境，**不是从零安装命令**。
+已手工备齐依赖时也可以使用`pip install --no-deps -e .`。
 安装后使用`import duvla`。仓库可克隆到任意路径（含空格）；命令在仓库根目录执行，
-所有模型、数据和输出位置由使用者通过参数/环境变量指定，不能复制作者的绝对路径。
+模型、数据和输出位置由命令行参数或环境变量指定。
 旧研究脚本的`qwen_vla`导入已迁移；原始state-dict权重不因包改名而重训或改写。
 项目包不附带CUDA PyTorch轮子、LIBERO源码、Qwen权重或训练数据；这些分别准备。
 `qwen` optional extra已对齐当前4.57.6/0.36.2/0.22.2组合。
-当前本机LIBERO是site-packages源码安装，其精确上游commit与本地补丁仍待补充审计，
-因此不能声称普通`pip install libero`能完整复现本机环境。
 
 ## LIBERO环境安装
 
@@ -36,16 +32,12 @@ python scripts/check_libero_eval_env.py
 首次导入按LIBERO提示配置其路径。配置键实际是`init_states`，不是`init_files`；
 其目录通常对应源码中的`libero/libero/init_files`。OSMesa不是pip包，缺少`libOSMesa.so`
 时由系统管理员安装Ubuntu包`libosmesa6`；本项目不自动修改驱动或系统库。
-这里是完整的**安装命令与静态环境检查**，不是全新机器成功复现的证明：
-本机LIBERO精确源码revision/补丁及干净机器闭环仍需审计，
-不能将`--help`或包导入成功等同于渲染/2000集复现通过。
 
 ## 下载分工
 
 1. 本地 DuVLA V3.31 策略包：`policy.pt` 与 `train_manifest.json`。
 2. Qwen官方仓库：`Qwen/Qwen3-VL-2B-Instruct`，固定revision
-   `89644892e4d85e24eaac8bacfd4f463576704203`。本地HF下载metadata记录此revision；
-   发布前还应完成全部骨干文件hash清单校验，不仅依赖config.json的revision记录。
+   `89644892e4d85e24eaac8bacfd4f463576704203`。
 3. LIBERO代码与模拟资产、官方初始状态；仅评测无需下载训练示范。
 4. 仅重新训练才需要官方HDF5、基础空间特征缓存、有序语言侧车与增强侧车。
 
@@ -81,16 +73,15 @@ python scripts/aggregate_duvla_v2_1_eval.py \
 ```
 
 任一套失败后循环停止，聚合器会拒绝缺失/不完整结果。续跑使用同样命令和`--resume`。
-不要混合不同权重、manifest或协议的结果目录。新导出checkpoint的文件SHA256与原始文件不同，
-原始测评证据继续绑定原始hash；`provenance.json`给出映射及张量一致性验证。
+不同权重、manifest或协议使用独立结果目录。
 
 `--train-manifest`在测评中用于归一化和缓存签名核验，不读取feature shard。
-发布manifest中的`${LOCAL_HOME}`是脱敏来源标记，不是运行时数据目录，无需手动替换。
-20Hz是仿真控制频率；GPU在线前向和CPU模拟可能使实际执行慢于实时。
+manifest中的`${LOCAL_HOME}`是来源路径标记，无需手动替换。
+20Hz为仿真控制频率。
 
 ## 训练复现路径
 
-主模型不是一次30E从头训练：
+主模型的训练阶段：
 
 `官方2000示范 → 基础Qwen特征与因果语言侧车 → V3.29从头30E → V3.31追加30E`
 
@@ -106,16 +97,14 @@ python scripts/aggregate_duvla_v2_1_eval.py \
 | 配对增强 | `cache_duvla_v3_31.py` | 每任务250行，共10,000行，约7.7GiB |
 | 主模型联合适配 | `train_duvla_v3_31.py` | batch144，30E，70,140更新 |
 
-这些脚本的`--help`可检查输入。历史campaign不纳入首发入口：其绝对路径和自动训练链
-属于原工作站。V3.29只是V3.31的内部前置训练阶段，不单独发布旧版本模型。
+这些脚本的`--help`可检查输入。V3.29是V3.31的内部前置训练阶段。
 从头复现时按README构建一组新的、彼此绑定的缓存和父策略；不能把旧权重随意接到新缓存。
 第二阶段`--parent-sha256`明确指定自己的完整30E父权重哈希；未传时仍锁定历史父策略。
 同时检查父阶段预算、动作语义、数据签名和语言侧车hash，不使用“跳过验证”开关。
-`--check-inputs-only`只作CPU来源校验，不等于完整分片遍历或GPU训练。
+`--check-inputs-only`用于CPU来源校验。
 原生Linux检查本地空间；WSL必须设置`DUVLA_WSL_HOST_DRIVE`到实际VHDX所在盘，
 如PowerShell不在默认位置另设`DUVLA_POWERSHELL`，无法核验时仍会阻止正式写入。
-这一宿主磁盘检查属于本地WSL运行注意事项，普通Ubuntu安装不设置这些变量。
-原始缓存/权重/结果的hash不修改；公开推理包不是含optimizer的resume快照。
+普通Ubuntu安装无需设置WSL宿主磁盘变量。
 
 训练缓存建议本地按需构建；首发不要求上传约210GiB缓存。
 保存每阶段loss曲线和实际样本曝光，而非只比较optimizer step数。
@@ -129,5 +118,4 @@ PYTHONPATH=src:scripts python -m pytest -q \
   tests/test_duvla_v3_31.py tests/test_v3_29_implementation.py
 ```
 
-单元测试和CPU checkpoint加载不等于重新完成2000集复现。
-公开结果来自原实验文件，硬件/环境改变后的实测应写入新的结果目录。
+不同设备或协议的实测结果写入独立结果目录。

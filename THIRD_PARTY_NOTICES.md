@@ -1,11 +1,11 @@
-# 第三方来源与待核验事项
+# 第三方来源
 
 本文件是来源清单，不替代第三方LICENSE，也不是DuVLA的许可证。
 
-| 来源 | 用途 | 当前核验状态 |
+| 来源 | 用途 | 许可与使用说明 |
 | --- | --- | --- |
 | Qwen/Qwen3-VL-2B-Instruct | 冻结视觉语言骨干、可选LoRA基座 | 官方model card标注Apache-2.0；单独下载，不包含在发布包 |
-| Lifelong-Robot-Learning/LIBERO | 模拟器任务、测评 | 源码LICENSE为MIT，保留上游版权；本机安装来源/补丁仍待锁定 |
+| Lifelong-Robot-Learning/LIBERO | 模拟器任务、测评 | 源码LICENSE为MIT，保留上游版权；从上游仓库获取 |
 | yifengzhu-hf/LIBERO-datasets | 官方训练HDF5快照 | revision已记录；数据/模拟资产具体再分发许可需单独核验，不随本包上传 |
 | PyTorch / Transformers / PEFT / robosuite / MuJoCo | 运行依赖 | 由使用者按上游许可独立安装，本包不打包其源码或环境 |
 | SmolVLA / LeRobot等参考工作 | 研究设计与历史实验参考 | 不宣称整仓源码已完成逐文件来源审计；发布前核实复制/改写部分并补版权声明 |

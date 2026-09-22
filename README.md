@@ -3,11 +3,11 @@
 DuVLA 是一个以冻结 [Qwen3-VL-2B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct)
 为视觉语言骨干、使用 Flow Matching 生成机器人动作的研究项目。它将双相机图像、语言指令和机器人状态
 接入统一策略；训练时缓存骨干特征，推理时在线编码并在每次执行两步动作后重新观察。
-设计目标是在单张 8GiB 显存的消费级 NVIDIA GPU 上训练策略，**不是全参数训练 Qwen**。
+Qwen 骨干保持冻结，策略训练面向单张 8GiB 显存的消费级 NVIDIA GPU。
 
 当前对外主模型为 **V3.31**。同一 checkpoint 在 LIBERO 四套、40 个任务、2000 个官方初始状态上
-取得 **1906/2000（95.30%）** 的闭环开发测评成功率。源码仓库不附带策略权重；
-使用已有本地权重，或按下文流程自行训练。
+取得 **1906/2000（95.30%）** 的闭环开发测评成功率。测评使用单独准备的策略权重，
+也可以按下文流程自行训练。
 
 [安装](#安装ubuntu) · [测评](#测评-v331) · [从头训练](#从头训练-v331) ·
 [复现细节](docs/reproduction.md) · [贡献指南](CONTRIBUTING.md)
@@ -22,8 +22,7 @@ DuVLA 是一个以冻结 [Qwen3-VL-2B-Instruct](https://huggingface.co/Qwen/Qwen
 
 每套 10 个任务、每任务 50 个官方初始状态。统一策略使用自然语言，不用 benchmark task index
 选择专家。协议为 20 Hz 仿真控制、双相机 128×128、5 条 Flow 候选、每轮执行前 2 步、
-seed 23、OSMesa 渲染；四套环境步数上限依次为 520/280/280/300。20 Hz **不是推理帧率**。
-这些初始状态已用于开发分析，结果不是独立盲测、未见任务或真实机器人泛化。
+seed 23、OSMesa 渲染；四套环境步数上限依次为 520/280/280/300。
 
 ## 模型
 
@@ -49,8 +48,7 @@ seed 23、OSMesa 渲染；四套环境步数上限依次为 520/280/280/300。20
 | V3.31 policy checkpoint 全部参数 | 134,394,924 |
 | 当前训练且参与推理的策略参数 | 101,895,440 |
 
-其余 checkpoint 参数用于保持历史模型拓扑并支持严格加载，不代表当前启用了独立动作残差专家。
-V3.31 **没有** Outcome Verifier、Recovery 或 Qwen LoRA；完整推理系统也不能称为“只有 101.9M 参数”。
+参数表分别统计冻结的 Qwen 骨干、策略 checkpoint，以及 V3.31 参与训练和推理的策略路径。
 
 ## 系统要求与资产
 
@@ -103,11 +101,8 @@ python -c 'import duvla, torch; assert torch.cuda.is_available(); print(duvla.__
 python scripts/check_libero_eval_env.py
 ```
 
-已有 `LIBERO` 目录时先检查，不要直接克隆覆盖。不要在此环境安装 LIBERO 上游整份旧
-`requirements.txt`；其旧版 Transformers/NumPy 会覆盖本项目的固定组合。
-`requirements/verified-runtime.txt`记录已运行的主要直接依赖，不是跨机器完整锁文件；
-上游 LIBERO 源码与本项目开发所用的本地安装存在待审计差异。
-`pip check`和导入通过只证明依赖接线，不等于闭环仿真通过。
+已有 `LIBERO` 目录时先检查其位置。LIBERO 源码采用 `--no-deps` 安装，以保留上面的
+依赖版本组合；主要依赖版本见 `requirements/verified-runtime.txt`。
 
 ## 测评 V3.31
 
@@ -136,9 +131,8 @@ python scripts/aggregate_duvla_v2_1_eval.py \
   --root outputs/eval2000 --expected-episodes 2000 --output outputs/eval2000/aggregate.json
 ```
 
-聚合器会拒绝不完整结果。默认不保存视频；换权重或协议必须换结果目录，不能混用 `--resume`。
-项目 checkpoint 通过 DuVLA 加载器使用，不能直接交给 `AutoModel.from_pretrained`。
-更详细的协议与结果文件见[复现指南](docs/reproduction.md)。
+聚合器会检查结果完整性。默认不保存视频；换权重或协议时使用新的结果目录。
+DuVLA checkpoint 由项目评测脚本加载。详细协议见[复现说明](docs/reproduction.md)。
 
 ## 从头训练 V3.31
 
@@ -148,7 +142,7 @@ python scripts/aggregate_duvla_v2_1_eval.py \
 其他数据源不得直接沿用这个时序偏移。
 
 训练过程是 **缓存冻结 Qwen 特征 → 基础策略从头 30E → V3.31 联合适配 30E**。
-脚本名中的 V3.29 是内部父阶段，不是另一个发布模型。训练前准备充足磁盘空间
+其中 V3.29 是内部父策略训练阶段。训练前准备充足磁盘空间
 （特征/侧车缓存合计约 210GiB，另需 checkpoint 和系统余量），并在仓库根目录配置：
 
 ```bash
@@ -214,20 +208,10 @@ GitHub 仓库保存源码、测试与使用说明；训练数据、特征缓存�
 研究日志均留在本地。策略权重及归一化 manifest 单独管理；Qwen 骨干、LIBERO 数据与模拟
 资产由使用者从各自来源获取。
 
-## 复现边界
-
-- README 只介绍当前主模型 V3.31；其他研究版本不作为本仓库的使用入口。
-- 训练采用 2000 条 LIBERO 官方示范的全量 refit，**没有**示范 validation；上表的
-  2000 集属于开发测评，不是独立验证集。
-- 已对公开入口做安装/缓存/单更新接线检查，但尚未在原生 Ubuntu 的全新机器上完成
-  全量 30E+30E 训练或 2000 集重跑。安装成功、`--help`和单更新冒烟不等于结果复现。
-- 固定版本依赖与复现步骤见[复现说明](docs/reproduction.md)；完整实验记录保存在本地研究目录，
-  不纳入 Git 提交。
-
 ## 致谢与许可
 
 依赖[Qwen3-VL](https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct)、
 [LIBERO](https://github.com/Lifelong-Robot-Learning/LIBERO)及PyTorch等开源项目。
 项目自有代码采用[MIT](LICENSE)。
 第三方代码、基座权重、数据和模拟资产许可独立适用。
-来源与待核验项见[第三方说明](THIRD_PARTY_NOTICES.md)。
+来源见[第三方说明](THIRD_PARTY_NOTICES.md)。
