@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "如果本项目对你的研究有帮助，请引用此软件版本。"
+type: software
+title: "DuVLA: Resource-Efficient Qwen-Based Vision-Language-Action Policy"
+authors:
+  - name: goddogman
+    website: "https://github.com/goddogman"
+version: "3.31"
+date-released: "2026-09-22"
+license: MIT
+repository-code: "https://github.com/goddogman/duvla"
+repository-artifact: "https://huggingface.co/doggodman/duvla-v3.31"
+url: "https://github.com/goddogman/duvla"

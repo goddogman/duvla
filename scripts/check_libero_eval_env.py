@@ -9,6 +9,7 @@ import huggingface_hub
 import tokenizers
 import transformers
 
+from duvla.evaluation.initial_states import load_libero_initial_states
 
 EXPECTED = {
     "huggingface_hub": "0.36.2",
@@ -31,7 +32,7 @@ def main() -> None:
     if mismatches:
         raise SystemExit(f"incompatible LIBERO evaluation runtime: {mismatches}")
     try:
-        import libero  # noqa: F401
+        from libero.libero import benchmark
         from transformers import AutoModelForImageTextToText, AutoProcessor  # noqa: F401
     except ImportError as exc:
         raise SystemExit(f"LIBERO/Qwen evaluation import failed: {exc}") from exc
@@ -39,6 +40,11 @@ def main() -> None:
     for name, version in detected.items():
         print(f"{name}={version}")
     print("libero/qwen imports=ok")
+    suite = benchmark.get_benchmark("libero_10")(task_order_index=0)
+    states = load_libero_initial_states(suite, 0)
+    if len(states) != 50:
+        raise SystemExit(f"expected 50 official initial states, found {len(states)}")
+    print(f"libero_10/task0 initial states={states.shape}, dtype={states.dtype}, safe_load=ok")
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Strict natural-language LIBERO evaluator for Duvla V2.1."""
+"""Natural-language LIBERO evaluator with DuVLA V3.31 public defaults."""
 
 from __future__ import annotations
 
@@ -25,6 +25,7 @@ from duvla.evaluation.libero_contract import (
     orient_libero_view,
 )
 from duvla.evaluation.libero_rollout import compose_views
+from duvla.evaluation.initial_states import load_libero_initial_states
 from duvla.data import file_sha256
 from duvla.models.duvla_v2_1 import (
     DuvlaV21Config,
@@ -105,10 +106,10 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--action-steps", type=int, default=2)
     parser.add_argument("--settle-steps", type=int, default=10)
-    parser.add_argument("--camera-size", type=int, default=256)
+    parser.add_argument("--camera-size", type=int, default=128)
     parser.add_argument("--v329-development-20e", action="store_true")
-    parser.add_argument("--fps", type=int, default=10)
-    parser.add_argument("--flow-seed", type=int, default=17)
+    parser.add_argument("--fps", type=int, default=20)
+    parser.add_argument("--flow-seed", type=int, default=23)
     parser.add_argument("--flow-samples", type=int, default=5)
     parser.add_argument(
         "--candidate-aggregation",
@@ -961,7 +962,7 @@ def main() -> None:
     flip_views = not args.no_flip_views
     for task_id in task_ids:
         task = suite.get_task(task_id)
-        init_states = suite.get_task_init_states(task_id)
+        init_states = load_libero_initial_states(suite, task_id)
         if selection is not None:
             episode_state_pairs = tuple(enumerate(selection[task_id]))
         elif args.all_init_states:

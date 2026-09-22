@@ -11,9 +11,10 @@ Qwen 骨干保持冻结，策略训练面向单张 8GiB 显存的消费级 NVIDI
 
 [下载 V3.31 模型权重](https://huggingface.co/doggodman/duvla-v3.31)。
 作者与维护者：[goddogman](https://github.com/goddogman)。
+Hugging Face 发布账号为 [doggodman](https://huggingface.co/doggodman)，由同一作者维护。
 
 [安装](#安装ubuntu) · [测评](#测评-v331) · [从头训练](#从头训练-v331) ·
-[复现细节](docs/reproduction.md) · [贡献指南](CONTRIBUTING.md)
+[复现细节](docs/reproduction.md) · [引用](CITATION.cff) · [贡献指南](CONTRIBUTING.md)
 
 ## 结果
 
@@ -68,7 +69,14 @@ seed 23、OSMesa 渲染；四套环境步数上限依次为 520/280/280/300。
 
 ## 安装（Ubuntu）
 
-先安装 Python 3.12（含 `venv`）、Git 和与 GPU 相配的 NVIDIA 驱动。以下命令在仓库根目录运行；
+先安装 Python 3.12（含 `venv`）、Git 和与 GPU 相配的 NVIDIA 驱动。获取源码：
+
+```bash
+git clone https://github.com/goddogman/duvla.git
+cd duvla
+```
+
+以下命令在仓库根目录运行；
 PyTorch 示例对应本项目已运行的 CUDA 12.8 组合。不同驱动/平台请先查看
 [PyTorch 官方安装说明](https://docs.pytorch.org/get-started/locally/)。
 
@@ -94,6 +102,7 @@ python -m pip install -e '.[train,qwen,eval,dev]'
 # LIBERO 源码不由 DuVLA 的 PyPI 依赖自动安装。
 export DUVLA_LIBERO_ROOT="$HOME/projects/LIBERO"
 git clone https://github.com/Lifelong-Robot-Learning/LIBERO.git "$DUVLA_LIBERO_ROOT"
+git -C "$DUVLA_LIBERO_ROOT" checkout --detach 8f1084e3132a39270c3a13ebe37270a43ece2a01
 python -m pip install --no-deps -e "$DUVLA_LIBERO_ROOT"
 export MUJOCO_GL=osmesa
 # 第一次导入若提示配置 LIBERO 资产路径，选择源码内默认路径可回答 n。
@@ -106,6 +115,7 @@ python scripts/check_libero_eval_env.py
 
 已有 `LIBERO` 目录时先检查其位置。LIBERO 源码采用 `--no-deps` 安装，以保留上面的
 依赖版本组合；主要依赖版本见 `requirements/verified-runtime.txt`。
+DuVLA 的初始状态加载器兼容新版 PyTorch，环境检查会读取一份官方初始状态。
 
 ## 测评 V3.31
 
@@ -115,15 +125,27 @@ python scripts/check_libero_eval_env.py
 ```bash
 hf download doggodman/duvla-v3.31 \
   policy.pt model_config.json train_manifest.json \
+  --revision 5f5003cbf8c2f9febf2d88fd6b1e84107bd07689 \
   --local-dir weights/duvla-v3.31
+
+hf download Qwen/Qwen3-VL-2B-Instruct \
+  --revision 89644892e4d85e24eaac8bacfd4f463576704203 \
+  --local-dir models/Qwen3-VL-2B-Instruct
 ```
 
-模型仓库为私有时，下载前需使用有访问权限的账号运行 `hf auth login`。
+首次使用先检查策略文件，可在 CPU 上完成，无需加载 Qwen 或启动仿真：
+
+```bash
+python scripts/check_duvla_model.py --model-dir weights/duvla-v3.31
+```
+
+V3.31 表示策略版本，Python 包版本独立维护；模型、代码和上游版本对应关系见
+[固定版本与文件校验](docs/reproduction.md#固定版本与文件校验)。
 
 评测脚本沿用历史文件名 `evaluate_duvla_v2_1.py`，但会按 checkpoint 加载 V3.31 策略。
 
 ```bash
-export DUVLA_QWEN_PATH=/path/to/Qwen3-VL-2B-Instruct
+export DUVLA_QWEN_PATH="$PWD/models/Qwen3-VL-2B-Instruct"
 export DUVLA_MODEL_DIR="$PWD/weights/duvla-v3.31"
 export MUJOCO_GL=osmesa
 export OPENBLAS_NUM_THREADS=1
@@ -167,6 +189,17 @@ export OPENBLAS_NUM_THREADS=1
 ```
 
 `DUVLA_DATA_ROOT` 下须包含 `libero_spatial/`、`libero_object/`、`libero_goal/`、`libero_10/`。
+仅训练时需要下载以下四套示范；指定快照直接提供 HDF5，无需解压：
+
+```bash
+hf download yifengzhu-hf/LIBERO-datasets --repo-type dataset \
+  --revision f13aa24a3da8c43c7225569f28c562979fa0e35a \
+  --include 'libero_spatial/*.hdf5' 'libero_object/*.hdf5' \
+            'libero_goal/*.hdf5' 'libero_10/*.hdf5' \
+  --local-dir "$DUVLA_DATA_ROOT"
+```
+
+目录应为 `libero_official_hdf5/libero_10/<task>_demo.hdf5` 等，每套 10 个文件。
 正式训练命令：
 
 ```bash

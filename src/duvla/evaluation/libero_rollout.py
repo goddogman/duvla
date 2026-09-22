@@ -15,6 +15,7 @@ from typing import Literal
 import numpy as np
 
 from duvla.data.contracts import ACTION_DIM
+from duvla.evaluation.initial_states import load_libero_initial_states
 
 
 ActionMode = Literal["zeros"]
@@ -107,7 +108,7 @@ def run_zero_action_rollout(
     if config.task_index >= task_suite.get_num_tasks():
         raise ValueError(f"task_index {config.task_index} is outside {task_suite.get_num_tasks()} tasks")
     task = task_suite.get_task(config.task_index)
-    init_states = task_suite.get_task_init_states(config.task_index)
+    init_states = load_libero_initial_states(task_suite, config.task_index)
     if config.init_state_index >= len(init_states):
         raise ValueError(f"init_state_index {config.init_state_index} is outside {len(init_states)} states")
 

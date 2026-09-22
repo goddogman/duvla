@@ -6,12 +6,20 @@ build-backend = "setuptools.build_meta"
 name = "duvla"
 version = "0.1.0"
 description = "DuVLA: resource-efficient Qwen-based robot policy learning and LIBERO evaluation"
+authors = [{name = "goddogman"}]
+maintainers = [{name = "goddogman"}]
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.10,<3.13"
 dependencies = [
     "pyarrow>=15.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/goddogman/duvla"
+Repository = "https://github.com/goddogman/duvla"
+Issues = "https://github.com/goddogman/duvla/issues"
+Model = "https://huggingface.co/doggodman/duvla-v3.31"
 
 [project.optional-dependencies]
 train = [

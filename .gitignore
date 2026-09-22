@@ -83,6 +83,7 @@ AGENTS.local.md
 !/scripts/cache_duvla_v3_31.py
 !/scripts/cache_official_libero_hdf5_features.py
 !/scripts/check_libero_eval_env.py
+!/scripts/check_duvla_model.py
 !/scripts/evaluate_duvla_v2_1.py
 !/scripts/train_duvla_v2_1.py
 !/scripts/train_duvla_v3_29.py
@@ -91,6 +92,7 @@ AGENTS.local.md
 !/tests/test_flow_contract.py
 !/tests/test_import.py
 !/tests/test_libero_contract.py
+!/tests/test_initial_states.py
 !/tests/test_qwen_backbone.py
 !/tests/test_training_portability.py
 !/tests/test_duvla_v3_31.py
