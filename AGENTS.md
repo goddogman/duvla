@@ -2,7 +2,7 @@
 
 正式展示名为 DuVLA；仓库、项目目录和 Python 包名统一为 `duvla`。
 V3.31是唯一对外主模型，完整LIBERO 2000集为1906/2000（95.30%）；其余版本只作本地实验。
-项目自有代码/策略采用MIT；作者暂为DuVLA contributors，GitHub账号确定后更新署名。
+项目自有代码/策略采用MIT；作者与维护者为 GitHub 用户 `goddogman`。
 
 ## 工作范围
 

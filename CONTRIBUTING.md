@@ -9,4 +9,5 @@
 - 模型、数据与环境不进Git；训练与大型下载单独估算并取得维护者授权。
 - 在隔离环境运行相关pytest；契约测试不代替闭环成功率验证。
 
-项目自有代码采用MIT，见LICENSE；第三方许可独立适用。GitHub账号确定后更新作者署名。
+项目自有代码采用MIT，见LICENSE；作者与维护者为[@goddogman](https://github.com/goddogman)。
+第三方许可独立适用。

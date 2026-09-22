@@ -10,6 +10,7 @@ Qwen 骨干保持冻结，策略训练面向单张 8GiB 显存的消费级 NVIDI
 也可以按下文流程自行训练。
 
 [下载 V3.31 模型权重](https://huggingface.co/doggodman/duvla-v3.31)。
+作者与维护者：[goddogman](https://github.com/goddogman)。
 
 [安装](#安装ubuntu) · [测评](#测评-v331) · [从头训练](#从头训练-v331) ·
 [复现细节](docs/reproduction.md) · [贡献指南](CONTRIBUTING.md)
