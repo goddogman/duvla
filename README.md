@@ -9,6 +9,8 @@ Qwen 骨干保持冻结，策略训练面向单张 8GiB 显存的消费级 NVIDI
 取得 **1906/2000（95.30%）** 的闭环开发测评成功率。测评使用单独准备的策略权重，
 也可以按下文流程自行训练。
 
+[下载 V3.31 模型权重](https://huggingface.co/doggodman/duvla-v3.31)。
+
 [安装](#安装ubuntu) · [测评](#测评-v331) · [从头训练](#从头训练-v331) ·
 [复现细节](docs/reproduction.md) · [贡献指南](CONTRIBUTING.md)
 
@@ -57,7 +59,7 @@ seed 23、OSMesa 渲染；四套环境步数上限依次为 520/280/280/300。
 
 | 用途 | 必要资产 |
 | --- | --- |
-| 测评 V3.31 | 策略 `policy.pt` 与 `train_manifest.json`、[Qwen 骨干](https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct)、[LIBERO 模拟器/资产](https://github.com/Lifelong-Robot-Learning/LIBERO) |
+| 测评 V3.31 | [DuVLA 权重](https://huggingface.co/doggodman/duvla-v3.31)中的 `policy.pt` 与 `train_manifest.json`、[Qwen 骨干](https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct)、[LIBERO 模拟器/资产](https://github.com/Lifelong-Robot-Learning/LIBERO) |
 | 从头训练 | 上述 Qwen 与 LIBERO 源码、[LIBERO 官方示范 HDF5](https://huggingface.co/datasets/yifengzhu-hf/LIBERO-datasets) 的 Spatial/Object/Goal/10 四套、约 210GiB 的本地特征缓存空间 |
 
 模型和数据均**不会**在 `import duvla` 或安装时自动下载。
@@ -106,12 +108,22 @@ python scripts/check_libero_eval_env.py
 
 ## 测评 V3.31
 
-准备本地 `policy.pt`、`train_manifest.json` 和 Qwen 骨干；路径由使用者指定。
+从 [Hugging Face 模型仓库](https://huggingface.co/doggodman/duvla-v3.31)下载 V3.31 策略文件，
+并准备本地 Qwen 骨干：
+
+```bash
+hf download doggodman/duvla-v3.31 \
+  policy.pt model_config.json train_manifest.json \
+  --local-dir weights/duvla-v3.31
+```
+
+模型仓库为私有时，下载前需使用有访问权限的账号运行 `hf auth login`。
+
 评测脚本沿用历史文件名 `evaluate_duvla_v2_1.py`，但会按 checkpoint 加载 V3.31 策略。
 
 ```bash
 export DUVLA_QWEN_PATH=/path/to/Qwen3-VL-2B-Instruct
-export DUVLA_MODEL_DIR=/path/to/duvla-v3.31
+export DUVLA_MODEL_DIR="$PWD/weights/duvla-v3.31"
 export MUJOCO_GL=osmesa
 export OPENBLAS_NUM_THREADS=1
 export OMP_NUM_THREADS=2
