@@ -3,13 +3,14 @@
 DuVLA 是一个以冻结 [Qwen3-VL-2B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct)
 为视觉语言骨干、使用 Flow Matching 生成机器人动作的研究项目。它将双相机图像、语言指令和机器人状态
 接入统一策略；训练时缓存骨干特征，推理时在线编码并在每次执行两步动作后重新观察。
-设计目标是在单张约 8GB 显存的消费级 NVIDIA GPU 上训练策略，**不是全参数训练 Qwen**。
+设计目标是在单张 8GiB 显存的消费级 NVIDIA GPU 上训练策略，**不是全参数训练 Qwen**。
 
 当前对外主模型为 **V3.31**。同一 checkpoint 在 LIBERO 四套、40 个任务、2000 个官方初始状态上
 取得 **1906/2000（95.30%）** 的闭环开发测评成功率。源码仓库不附带策略权重；
 使用已有本地权重，或按下文流程自行训练。
 
-[安装与复现](docs/reproduction.md) · [贡献指南](CONTRIBUTING.md)
+[安装](#安装ubuntu) · [测评](#测评-v331) · [从头训练](#从头训练-v331) ·
+[复现细节](docs/reproduction.md) · [贡献指南](CONTRIBUTING.md)
 
 ## 结果
 
@@ -19,10 +20,10 @@ DuVLA 是一个以冻结 [Qwen3-VL-2B-Instruct](https://huggingface.co/Qwen/Qwen
 | **V3.31** | 457/500 | 479/500 | 484/500 | 486/500 | **1906/2000（95.30%）** |
 <!-- DUVLA_RESULTS_END -->
 
-每套 10 个任务、每任务 50 个官方初始状态；自然语言作为策略输入，不使用 benchmark task index
-选择专家。控制频率 20 Hz；四套环境步数上限依次为 520/280/280/300；双相机 128×128，
-5 个 Flow 候选、执行前 2 步、固定 seed 23，OSMesa 渲染。20 Hz 是仿真控制频率，
-**不是在线推理速度**。这些初始状态已用于开发分析，结果不能称为独立盲测、未见任务或真实机器人泛化。
+每套 10 个任务、每任务 50 个官方初始状态。统一策略使用自然语言，不用 benchmark task index
+选择专家。协议为 20 Hz 仿真控制、双相机 128×128、5 条 Flow 候选、每轮执行前 2 步、
+seed 23、OSMesa 渲染；四套环境步数上限依次为 520/280/280/300。20 Hz **不是推理帧率**。
+这些初始状态已用于开发分析，结果不是独立盲测、未见任务或真实机器人泛化。
 
 ## 模型
 
@@ -54,8 +55,7 @@ V3.31 **没有** Outcome Verifier、Recovery 或 Qwen LoRA；完整推理系统�
 ## 系统要求与资产
 
 安装说明以 **Ubuntu Linux x86_64** 为准，推荐 Python 3.12、NVIDIA CUDA GPU 和 OSMesa。
-开发所用设备为 RTX 5060 Laptop（8GiB 显存）。这一硬件记录不保证所有 Ubuntu 主机都有相同吞吐，
-原生 Ubuntu 的干净机器安装仍需独立复核。
+开发设备为 RTX 5060 Laptop（8GiB 显存）；不同设备的吞吐和显存峰值需自行核验。
 
 | 用途 | 必要资产 |
 | --- | --- |
@@ -111,8 +111,8 @@ python scripts/check_libero_eval_env.py
 
 ## 测评 V3.31
 
-准备本地 `policy.pt`、`train_manifest.json` 和 Qwen 骨干；下列路径由使用者自行指定。
-所有路径由使用者指定，不依赖作者的目录结构。
+准备本地 `policy.pt`、`train_manifest.json` 和 Qwen 骨干；路径由使用者指定。
+评测脚本沿用历史文件名 `evaluate_duvla_v2_1.py`，但会按 checkpoint 加载 V3.31 策略。
 
 ```bash
 export DUVLA_QWEN_PATH=/path/to/Qwen3-VL-2B-Instruct
@@ -196,21 +196,23 @@ python scripts/train_duvla_v3_31.py \
 
 ## 仓库结构
 
-本地只维护这一个 Git 仓库：训练、测评和准备 GitHub 发布均从其根目录进行；
-大型示范数据、Qwen 权重和特征缓存可保留在仓库外，通过命令行路径接入，不会进入 Git 提交。
+训练与测评使用同一个源码仓库。大型示范数据、Qwen 权重和特征缓存通过路径参数接入，
+不进入 Git 提交。
 
 ```text
 duvla/
 ├── src/duvla/          # 数据、策略和测评共享代码
 ├── scripts/            # 缓存、训练与LIBERO评测入口
 ├── tests/              # 数据/动作/加载契约测试
-├── requirements/       # 已运行的直接依赖版本
-└── docs/reproduction.md
+├── requirements/       # 已运行的主要依赖版本
+├── docs/reproduction.md
+├── pyproject.toml
+└── LICENSE
 ```
 
-GitHub 仓库保存源码、测试与使用说明，不包含训练数据、特征缓存、checkpoint、逐集测评记录
-或研究日志。策略权重及其归一化 manifest 由使用者单独管理；Qwen 骨干、LIBERO 数据与模拟
-资产须从各自来源获取。
+GitHub 仓库保存源码、测试与使用说明；训练数据、特征缓存、checkpoint、逐集测评记录和
+研究日志均留在本地。策略权重及归一化 manifest 单独管理；Qwen 骨干、LIBERO 数据与模拟
+资产由使用者从各自来源获取。
 
 ## 复现边界
 

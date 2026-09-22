@@ -92,18 +92,20 @@ def test_deployment_budget_and_camera_guards() -> None:
     with pytest.raises(ValueError): _validate_v329_deployment(dict(checkpoint,epoch=20),args)
 
 
-def test_guest_write_budget_and_host_reserve_are_separate(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_guest_write_budget_and_host_reserve_are_separate(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
     monkeypatch.setattr(budget, '_is_wsl', lambda: True)
     monkeypatch.setenv('DUVLA_WSL_HOST_DRIVE', 'D')
     monkeypatch.setattr(budget.shutil,'disk_usage',lambda p:SimpleNamespace(free=510*2**30))
     monkeypatch.setattr(Path,'exists',lambda p:True)
     monkeypatch.setattr(budget.subprocess,'run',lambda *args,**kwargs:SimpleNamespace(stdout=str(43*2**30)))
-    result=budget.require_disk_budget(Path('/home/yj-dsw'),minimum_gib=65)
+    result=budget.require_disk_budget(tmp_path,minimum_gib=65)
     assert result['windows_d_free_gib']==43
     assert result['required_host_reserve_gib']==12
     monkeypatch.setattr(budget.subprocess,'run',lambda *args,**kwargs:SimpleNamespace(stdout=str(8*2**30)))
     with pytest.raises(RuntimeError,match='Windows D盘'):
-        budget.require_disk_budget(Path('/home/yj-dsw'),minimum_gib=65)
+        budget.require_disk_budget(tmp_path,minimum_gib=65)
     monkeypatch.setattr(budget.shutil,'disk_usage',lambda p:SimpleNamespace(free=60*2**30))
     with pytest.raises(RuntimeError,match='WSL可用空间不足'):
-        budget.require_disk_budget(Path('/home/yj-dsw'),minimum_gib=65)
+        budget.require_disk_budget(tmp_path,minimum_gib=65)

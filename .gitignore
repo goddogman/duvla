@@ -72,6 +72,9 @@ AGENTS.local.md
 /configs/
 /notebooks/
 /src/duvla/ds4_vla/
+/src/duvla/benchmarks/
+/src/duvla/evaluation/paired.py
+/src/duvla/training/representation_probe.py
 /docs/*
 !/docs/reproduction.md
 /scripts/*
@@ -80,7 +83,6 @@ AGENTS.local.md
 !/scripts/cache_duvla_v3_31.py
 !/scripts/cache_official_libero_hdf5_features.py
 !/scripts/check_libero_eval_env.py
-!/scripts/compare_paired_libero_results.py
 !/scripts/evaluate_duvla_v2_1.py
 !/scripts/train_duvla_v2_1.py
 !/scripts/train_duvla_v3_29.py
